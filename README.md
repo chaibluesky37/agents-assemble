@@ -64,16 +64,11 @@ lane.sh down lane-a              # removes worktree, branch and database
 
 ## Testing
 
-The guidance was written against observed failures rather than invented ones, and checked by
-running the same planning task with and without the skill. Two things are worth saying plainly:
-
-- On a machine that already carries a project's own accumulated notes, agents recover much of
-  this on their own. The skill's value is portability to a fresh project, a tool that runs,
-  and an ordering you can follow rather than notes you have to reconstruct.
-- Three findings were missed by *every* run without the skill: tests that assert system-wide
-  totals, a shared-contract change turning sibling branches red at merge, and conflict
-  resolution by concatenation dropping a closing token from a code file. Those three are the
-  core of what this teaches.
+Measured, not asserted: the same planning task was given to four fresh agents — three without
+the skill, one with it — and scored on nine checks drawn from real failures.
+**Without the skill: 4–5 of 9. With it: 9 of 9.** Three checks were missed by every run
+without it. Method, full scorecard, and the baseline that had to be thrown away are in
+[`TESTING.md`](TESTING.md).
 
 ## License
 
