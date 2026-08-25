@@ -160,11 +160,17 @@ Spec ${l.spec} · source of truth ${docs.truth} · project rules ${docs.rules}
 The builder's report — do not trust it, check it:
 ${JSON.stringify(build, null, 2)}
 
-Find what is wrong, not what is right. At minimum: spec items silently dropped; the source of
-truth opened yourself; break the code on purpose and confirm the tests go red, then restore;
-every query scoped to the tenant and every permission enforced server-side; every button and
-link with a real destination; no invented numbers on screen; run the gate and confirm the
-counts the builder claimed. "pass" only if nothing is must-fix. Do not pass out of politeness.
+Check, in this order: every query scoped to the tenant and every permission enforced
+server-side · numbers invented rather than declared uncomputable · spec items missing that the
+builder did not declare · every button and link with a real destination · tests that stay green
+through deliberate sabotage (break it, confirm red, restore) · the gate's real counts.
+
+Each finding is three fragments, no sentences:
+  file  -> "path:line"
+  what  -> what breaks, and for whom
+  proof -> the command, or the line of code, that shows it
+No preamble, no summary, no restating the spec, no praise. Findings only.
+"pass" only if nothing is must-fix. Do not pass out of politeness.
 `
 
 const fixPrompt = (l, review) => `
@@ -191,7 +197,7 @@ const results = await pipeline(
       return r
     }
     return agent(fixPrompt(l, r.review), {
-      label: `fix:${l.name}`, phase: 'Fix', schema: FIX,
+      label: `fix:${l.name}`, phase: 'Fix', schema: FIX, effort: 'low',
     }).then((fix) => ({ ...r, fix }))
   },
 )
@@ -208,6 +214,35 @@ return {
   unfinished: done.flatMap((r) => r.build.unfinished),
 }
 ```
+
+## Token budget
+
+Measured on one lane review, four agents, same diff (`TESTING.md`):
+
+| | Where it goes | Lever |
+|---|---|---|
+| ~57k | the agent's whole context — tool schemas, the files it opens | stop five lanes each reading the same rules file |
+| ~7k | output tokens | the finding contract above: −20%, with the same defects found |
+| ~1.5k | the report itself | already the smallest part. Shrinking it further buys nothing |
+
+So the report shape is free money but it is not the win. Three things that are:
+
+**Distill the shared documents once.** `Read ${docs.rules} in full` × 5 lanes reads one file
+five times. Read it once in the foundation and paste the constraints that apply to *that* lane
+into its prompt. Lanes cannot infer boundaries, but they do not need the whole rulebook to
+respect them.
+
+**Spend on the reviewer, save on the fix pass.** The reviewer is the stage that pays: in the
+run above, every reviewer ran mutation tests unprompted and found that three of four planted
+breakages left the suite green — no gate could have told you that. The fix pass is mechanical,
+applying a list someone else wrote: `effort: 'low'`.
+
+**Let a clean review skip its fix agent.** One `if` in the last stage, one agent saved per
+lane that came back clean.
+
+Do not economize by cutting the reviewer, by handing lanes a summary of the spec instead of the
+spec, or by dropping "break the code and confirm it goes red". Those are the checks that
+justify the whole run.
 
 ## When it comes back
 

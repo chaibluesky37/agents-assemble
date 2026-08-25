@@ -37,6 +37,32 @@ it teaches, and each maps to a failure in the catalog: lanes deleting each other
 43 sibling tests turning red at merge from a renamed field, and a closing token vanishing
 during conflict resolution.
 
+## Second measurement: what the reviewer prompt costs
+
+The skill tells lanes and reviewers how to report. That wording is spent once per agent per
+lane, so it was measured rather than assumed.
+
+One fixture repo, one lane branch that is green (4 pass / 0 fail) and carries three real
+defects: a query filtering on customer name with no tenant scoping, an amount coerced to `0`
+when it could not be computed, and a sum stamped with whichever currency the first row
+happened to carry. Four fresh reviewers, same diff, same checks — two given the prose review
+prompt, two given the same checks with the finding stated as a contract (`file` / `what` /
+`proof`, fragments, no preamble).
+
+| | Prose prompt | Finding contract |
+|---|---|---|
+| Output tokens, mean | 7,618 | **6,114** (−20%) |
+| Report size, mean | 5,316 chars | **3,601** (−32%) |
+| Turns / tool calls, mean | 24 / 13 | 20 / 11.5 |
+| Planted defects found | 3 of 3, both runs | 3 of 3, both runs |
+
+Two per arm — the direction was consistent, the size is not proven. Both arms also found
+things nobody planted, including that the suite survives three of four deliberate breakages.
+
+The measurement that changed the guidance was the denominator: the report is ~1.5k of a ~7k
+output and a ~57k total per agent. Shaping the report is free, and it is not where the money
+is — five lanes each reading the same rulebook is.
+
 ## What did not work, and why it is here
 
 The first attempt at a baseline was thrown away. Those agents had filesystem access and found

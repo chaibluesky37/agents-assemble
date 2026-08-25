@@ -58,6 +58,7 @@ because of your work, report the delta and leave it. The integrator sets it afte
 ## Report
 Commit hashes and subjects from git log. Gate output with real counts — never "passed"
 without numbers. Everything you did NOT finish, in full, with size estimates.
+Fragments, not prose. No preamble, no summary, no restating this brief.
 ```
 
 ---
@@ -85,6 +86,13 @@ Your job is to find what is wrong, not to confirm it is right. At minimum:
    say so — not show zero. Zero is a different claim
 7. Project conventions: translations, formatting, types, no debug leftovers
 8. Run the gate yourself and confirm the numbers the builder claimed
+
+Each finding is three fragments, no sentences:
+  file  -> "path:line"
+  what  -> what breaks, and for whom
+  proof -> the command, or the line of code, that shows it
+No preamble, no summary, no restating the spec, no praise. Findings only — measured at 20%
+fewer output tokens than prose, with the same defects found.
 
 Verdict is "pass" only if nothing is must-fix. Do not pass out of politeness.
 ```
