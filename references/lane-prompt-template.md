@@ -50,6 +50,7 @@ because of your work, report the delta and leave it. The integrator sets it afte
 - <project conventions: no placeholder data on screen, scope every query to the tenant,
   check permissions server-side, translations complete, no debug leftovers>
 - Never merge, never push, never touch another branch
+- Never `git stash` — the stack is shared with every other lane. Park work in a patch file
 - If the spec does not answer something, decide it yourself against the source of truth and
   a real-world standard, and write down the reason. Do not stop and wait — nobody is watching
 - The specification is a survey, not scripture. If the real files contradict it, believe the

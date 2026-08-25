@@ -144,6 +144,26 @@ it — decided at integration, never left as two copies.
 
 ---
 
+## 11. Separate worktrees, one stash stack
+
+**Seen:** lane A ran `git stash push -u` to measure a baseline. While it was stashed, lane B
+pushed its own stash. Lane A's `git stash pop` restored **lane B's files** into lane A's
+worktree — a component, its test, an e2e spec, a stylesheet and three translation files — and
+dropped lane B's entry from the stack.
+
+**Actually:** `git worktree` gives each lane its own working tree and its own index, but the
+stash is a ref in the shared repository (`refs/stash`), not a per-worktree one. Isolating the
+worktree does not isolate the stash. Neither lane did anything wrong by its own rules.
+
+**Do:** lanes may not use `git stash`. To park work, `git diff > /tmp/<lane>.patch` — a file
+the lane owns. Recovery, if it already happened: `git stash store -m <msg> <hash>` puts the
+other lane's entry back, `git show <stash>:<path>` restores your own files one at a time, and
+`git status --short` before committing proves nothing of theirs went in. The ownership list is
+what catches it at integration: `git diff --name-only` shows another lane's files immediately.
+Without the list, this failure is silent.
+
+---
+
 ## 10. What the independent reviewer caught
 
 Two rounds, five lanes each. A must-fix defect in all ten, none of which any gate could see:

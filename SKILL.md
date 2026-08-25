@@ -50,6 +50,7 @@ a workflow silently loses lane isolation.
 | Resource | Why |
 |---|---|
 | git worktree + branch | One working tree means agents corrupt each other's edits |
+| No `git stash` | The stash is a repo ref, not a worktree one — one lane's pop restores another's files |
 | Database | Test cleanup truncates; two lanes delete each other's rows mid-run |
 | Ports | A leftover server makes the next lane test *the previous lane's code* and pass |
 | Test-data prefix | So cleanup can tell whose rows are whose |
@@ -94,6 +95,7 @@ totals, logic two lanes duplicated, document assembly), then run the whole gate 
 - "Merge them all and see what breaks" → you lose which lane broke it
 - A lane asks to edit schema, menu, or a shared contract → that is yours; then all lanes rebase
 - A lane's diff has a file outside its ownership list → bounce before reading code
+- A lane reaches for `git stash` → separate worktrees share one stash stack
 - One red run and you are about to call it flaky → re-run idle, and across seeds, first
 - You are about to write a system-total number from inside a lane → stop
 - A workflow phase is about to merge or push → integration is this session's, never a lane's
