@@ -34,6 +34,7 @@ build-out. Other runtimes also accept `~/.agents/skills/`.
 | [`references/failure-catalog.md`](references/failure-catalog.md) | Ten real seam failures with the fix for each |
 | [`references/integrator-checklist.md`](references/integrator-checklist.md) | Per-merge and post-merge lists for the one person who merges |
 | [`references/lane-prompt-template.md`](references/lane-prompt-template.md) | Build → review → fix prompts, with the boundaries a lane cannot infer |
+| [`references/workflow-mode.md`](references/workflow-mode.md) | Running the lanes as one `Workflow` script instead of five hand-dispatched agents |
 
 ## The shape
 
@@ -41,6 +42,10 @@ build-out. Other runtimes also accept `~/.agents/skills/`.
 Foundation (serial, one lane)  →  Lanes (parallel)  →  Integration (serial, you)
    everything shared lands here     build → review → fix   merge one at a time
 ```
+
+Lanes can be dispatched two ways — one agent call each, steered by hand, or one `Workflow`
+script that runs build → review → fix per lane and reports back as a phased progress tree.
+The foundation and every merge stay serial and yours either way.
 
 The rule that carries most of the weight:
 

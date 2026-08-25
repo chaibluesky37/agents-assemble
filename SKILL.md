@@ -1,6 +1,6 @@
 ---
 name: agents-assemble
-description: Use when dispatching several coding agents to work in parallel on one repository — five lanes, big fan-out, "จัดทีมชุดใหญ่", multi-agent build-outs — or when parallel work merged cleanly but the suite broke, every lane reported green yet integration is red, or agents overwrote each other's shared files.
+description: Use when dispatching several coding agents to work in parallel on one repository — five lanes, big fan-out, "จัดทีมชุดใหญ่", multi-agent build-outs — or when parallel work merged cleanly but the suite broke, every lane reported green yet integration is red, or agents overwrote each other's shared files. Also when a parallel run should come back as a phased progress tree with per-agent tokens rather than five loose reports.
 ---
 
 # Agents Assemble
@@ -28,6 +28,23 @@ permissions, menu, error codes, translation namespaces, seed, test-data cleanup 
 serial commit set first, gate green, before any lane branches. Lanes built on a moving base
 cannot be merged.
 
+## Two ways to run it
+
+Same shape either way — only the dispatch differs.
+
+| | Hand-dispatched | Workflow script |
+|---|---|---|
+| How | one `Agent` call per lane, you steer between them | one `Workflow` run: `pipeline(lanes, build, review, fix)` |
+| Fits when | the lane list is still moving, or lanes need conversation mid-flight | the lane list is fixed before dispatch and every lane runs the same three stages |
+| You get | full control, redirection at any moment | phases with per-agent tokens and time (`/workflows`), reports as JSON, resume one dead lane without re-running the rest |
+| You pay | tracking five conversations yourself | the shape is fixed once it starts — changing it means editing the script and resuming |
+
+Either way the foundation, every merge and the final gate stay **here**, serial, yours. The
+workflow runs the lanes and nothing else.
+
+**REQUIRED before writing one: `references/workflow-mode.md`** — the script, and the four ways
+a workflow silently loses lane isolation.
+
 ## Isolate per lane
 
 | Resource | Why |
@@ -39,7 +56,8 @@ cannot be merged.
 | File ownership list | Written before dispatch. A file outside it is a bounce, before reading code |
 
 `lane.sh` does worktree + branch + database + env files in one command. Run it with no
-arguments for usage.
+arguments for usage. It runs **before** dispatch in both modes — a workflow's own
+`isolation: 'worktree'` gives a git tree with no database and no ports, which is not a lane.
 
 ## Rules that were paid for
 
@@ -67,7 +85,8 @@ while you still know which merge caused it. After the last, do what only you can
 totals, logic two lanes duplicated, document assembly), then run the whole gate idle.
 
 **REQUIRED:** `references/integrator-checklist.md` · **for dispatch prompts:**
-`references/lane-prompt-template.md`
+`references/lane-prompt-template.md` · **to run the lanes as one workflow:**
+`references/workflow-mode.md`
 
 ## Red flags — stop
 
@@ -77,6 +96,8 @@ totals, logic two lanes duplicated, document assembly), then run the whole gate 
 - A lane's diff has a file outside its ownership list → bounce before reading code
 - One red run and you are about to call it flaky → re-run idle, and across seeds, first
 - You are about to write a system-total number from inside a lane → stop
+- A workflow phase is about to merge or push → integration is this session's, never a lane's
+- "`isolation: 'worktree'` isolates the lanes" → no database, no ports, a fresh tree per stage
 
 ## Rationalizations
 
@@ -88,6 +109,8 @@ totals, logic two lanes duplicated, document assembly), then run the whole gate 
 | "The lane already ran the full gate" | On a loaded machine, or against a stale server |
 | "This conflict is trivial, keep both sides" | That is how a closing brace disappears |
 | "A reviewer will slow us down" | Ten of ten lanes had a defect the author could not see |
+| "Let the workflow merge at the end, it has all five" | Batch merges lose which lane broke it, and nobody watched the gate |
+| "The schema says the gate was green" | A boolean is a field, not a run. Require the command and the raw counts |
 
 ## Real-world impact
 
